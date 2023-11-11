@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #111111; /* Set a dark background color */
+    }
+
+    canvas {
+      display: block;
+    }
+  </style>
+  <title>Realistic Rain Animation</title>
+</head>
+<body>
+  <canvas id="rainCanvas"></canvas>
+  <script>
+    const canvas = document.getElementById('rainCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const raindrops = [];
+    const splashes = [];
+
+    // Add rain sound
+    const rainSound = new Audio('C:\Users\fojta\made by me\Rain Sound 3 Minutes.mp3');
+    rainSound.loop = true;
+    rainSound.volume = 0.5; // Adjust the volume as needed
+    rainSound.play();
+
+    
+
+    function Raindrop(x, y, length, speed) {
+      this.x = x;
+      this.y = y;
+      this.length = length;
+      this.speed = speed;
+    }
+
+    Raindrop.prototype.update = function () {
+      this.y += this.speed;
+      if (this.y > canvas.height) {
+        this.y = 0;
+        createSplash(this.x, canvas.height);
+      }
+    };
+
+    Raindrop.prototype.draw = function () {
+      ctx.beginPath();
+      ctx.moveTo(this.x, this.y);
+      ctx.lineTo(this.x, this.y + this.length);
+      ctx.strokeStyle = 'rgba(174, 194, 224, 0.5)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    };
+
+    function Splash(x, y, radius) {
+      this.x = x;
+      this.y = y;
+      this.radius = radius;
+      this.alpha = 1;
+    }
+
+    Splash.prototype.update = function () {
+      this.alpha -= 0.02;
+      if (this.alpha <= 0) {
+        splashes.splice(splashes.indexOf(this), 1);
+      }
+    };
+
+    Splash.prototype.draw = function () {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(174, 194, 224, ${this.alpha})`;
+      ctx.fill();
+    };
+
+    function createRaindrops() {
+      for (let i = 0; i < 100; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const length = Math.random() * 20 + 5;
+        const speed = Math.random() * 5 + 2;
+        raindrops.push(new Raindrop(x, y, length, speed));
+      }
+    }
+
+    function createSplash(x, y) {
+      const radius = Math.random() * 5 + 2;
+      splashes.push(new Splash(x, y, radius));
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (const drop of raindrops) {
+        drop.update();
+        drop.draw();
+      }
+
+      for (const splash of splashes) {
+        splash.update();
+        splash.draw();
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    createRaindrops();
+    animate();
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
